@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+
+{% block title %}一覧 - 簡単お小遣い帳{% endblock %}
+
+{% block content %}
+    <div class="card summary-card">
+        <span class="summary-label">今月の合計支出</span>
+        <h2 class="summary-amount">
+            {{ total }} 円
+        </h2>
+    </div>
+
+    <div class="card">
+        <h3 class="card-title">支出の履歴</h3>
+        {% if expenses %}
+            <ul class="expense-list">
+                {% for item in expenses %}
+                    <li class="expense-item">
+                        <div>
+                            <div class="expense-category">{{ item.category }}</div>
+                            <div class="expense-date">{{ item.date }}</div>
+                        </div>
+                        <div class="expense-right">
+                            <span class="expense-amount">-{{ item.amount }}円</span>
+                            <a href="/edit/{{ item.id }}" class="expense-action-link">✏️</a>
+                            <form action="/delete/{{ item.id }}" method="POST" class="expense-delete-form">
+                                <button type="submit" onclick="return confirm('削除しますか？');" class="expense-delete-btn">🗑️</button>
+                            </form>
+                        </div>
+                    </li>
+                {% endfor %}
+            </ul>
+        {% else %}
+            <p class="empty-message">まだ記録がありません。<br>下の「入力」から追加してみましょう！</p>
+        {% endif %}
+    </div>
+{% endblock %}
