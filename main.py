@@ -1,8 +1,22 @@
 import sqlite3
 from fastapi import FastAPI, HTTPException
 from pydantic import BaseModel
+from fastapi.middleware.cors import CORSMiddleware
 
 app = FastAPI(title="家計簿アプリ API")
+
+# ⚠️ React（http://localhost:5173）からの通信を許可する設定
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=["http://localhost:5173", "*"], # 開発時は "*" でもOKです
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+
+@app.get("/")
+def read_root():
+    return {"message": "Hello from FastAPI!"}
 
 # --- 1. Pydanticによるデータの「型・設計図」定義 ---
 # リクエスト（入力）用
