@@ -1,7 +1,9 @@
 import sqlite3
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
+
+from app.core.discord import send_discord_notification  # 作成した関数をインポート
 
 app = FastAPI(title="家計簿アプリ API")
 
@@ -13,6 +15,17 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
+
+@app.middleware("http")
+async def notify_middleware(request: Request, call_next):
+    # アクセス情報を取得してDiscord送信関数を呼び出し
+    path = request.url.path
+    client_host = request.client.host if request.client else "unknown"
+    
+    send_discord_notification(path, client_host)
+
+    response = await call_next(request)
+    return response
 
 @app.get("/")
 def read_root():
