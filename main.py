@@ -1,12 +1,17 @@
 import os
 import sqlite3
-from fastapi import FastAPI, HTTPException, Request
+from fastapi import FastAPI, HTTPException, Request, Depends
 from fastapi.staticfiles import StaticFiles
 from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
-
+from sqlalchemy.orm import Session
+from typing import List
+import models
+from database import engine, get_db
 from core.discord import send_discord_notification  # 作成した関数をインポート
+
+models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="家計簿アプリ API")
 
@@ -37,10 +42,14 @@ class ExpenseCreate(BaseModel):
     date: str       # 例: "2026-03-01"
     category: str   # 例: "食費"
     amount: int     # 例: 1200 (自動で数値チェックされる!)
+    memo: str = None
 
 # レスポンス（出力）用
 class ExpenseResponse(ExpenseCreate):
     id: int
+
+    class Config:
+        orm_mode = True
 
 class ExpenseListResponse(BaseModel):
     expenses: list[ExpenseResponse]
@@ -56,7 +65,8 @@ def init_db():
             id INTEGER PRIMARY KEY AUTOINCREMENT,
             date TEXT NOT NULL,
             category TEXT NOT NULL,
-            amount INTEGER NOT NULL
+            amount INTEGER NOT NULL,
+            memo TEXT
         )
     """)
     conn.commit()
@@ -67,58 +77,34 @@ init_db()
 
 # --- 3. APIエンドポイント（ルーティング） ---
 
-# 1. 履歴一覧取得 API
-@app.get("/api/expenses", response_model=ExpenseListResponse)
-def get_expenses():
-    conn = sqlite3.connect("kakeibo.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, date, category, amount FROM expenses ORDER BY date DESC, id DESC")
-    rows = cursor.fetchall()
-    conn.close()
-    
-    expenses = []
-    total_amount = 0
-    
-    for row in rows:
-        amount = row[3]
-        total_amount += amount
-        expenses.append({
-            "id": row[0],
-            "date": row[1],
-            "category": row[2],
-            "amount": amount
-        })
-    
-    return {"expenses": expenses, "total": total_amount}
+# 1. データの取得（GET）
+@app.get("/api/expenses", response_model=List[ExpenseResponse])
+def get_expenses(db: Session = Depends(get_db)):
+    expenses = db.query(models.Expense).all()
+    return expenses
 
 
-# 2. 新規登録 API
+
+# 2. データの登録（POST）
 @app.post("/api/expenses", response_model=ExpenseResponse)
-def create_expense(expense: ExpenseCreate):
-    conn = sqlite3.connect("kakeibo.db")
-    cursor = conn.cursor()
-    cursor.execute(
-        "INSERT INTO expenses (date, category, amount) VALUES (?, ?, ?)",
-        (expense.date, expense.category, expense.amount)
+def create_expense(expense: ExpenseCreate, db: Session = Depends(get_db)):
+    db_expense = models.Expense(
+        date=expense.date,
+        amount=expense.amount,
+        category=expense.category,
+        memo=expense.memo
     )
-    conn.commit()
-    new_id = cursor.lastrowid
-    conn.close()
-    
-    return {
-        "id": new_id,
-        "date": expense.date,
-        "category": expense.category,
-        "amount": expense.amount
-    }
-
+    db.add(db_expense)
+    db.commit()
+    db.refresh(db_expense)
+    return db_expense
 
 # 3. 1件取得 API（編集画面などで使用）
 @app.get("/api/expenses/{expense_id}", response_model=ExpenseResponse)
 def get_expense(expense_id: int):
     conn = sqlite3.connect("kakeibo.db")
     cursor = conn.cursor()
-    cursor.execute("SELECT id, date, category, amount FROM expenses WHERE id = ?", (expense_id,))
+    cursor.execute("SELECT id, date, category, amount, memo FROM expenses WHERE id = ?", (expense_id,))
     row = cursor.fetchone()
     conn.close()
     
