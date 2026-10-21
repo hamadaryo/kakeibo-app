@@ -1,9 +1,12 @@
+import os
 import sqlite3
 from fastapi import FastAPI, HTTPException, Request
+from fastapi.staticfiles import StaticFiles
+from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 
-from app.core.discord import send_discord_notification  # 作成した関数をインポート
+from core.discord import send_discord_notification  # 作成した関数をインポート
 
 app = FastAPI(title="家計簿アプリ API")
 
@@ -27,9 +30,6 @@ async def notify_middleware(request: Request, call_next):
     response = await call_next(request)
     return response
 
-@app.get("/")
-def read_root():
-    return {"message": "Hello from FastAPI!"}
 
 # --- 1. Pydanticによるデータの「型・設計図」定義 ---
 # リクエスト（入力）用
@@ -176,3 +176,19 @@ def delete_expense(expense_id: int):
     conn.close()
     
     return {"message": f"ID: {expense_id} のデータを削除しました"}
+
+
+# --- 4. フロントエンド（React）の静的ファイル配信設定 ---
+frontend_dist = os.path.join(os.path.dirname(__file__), "frontend", "dist")
+
+if os.path.exists(frontend_dist):
+    # /assets パスの静的ファイル（JS, CSS等）を配信
+    app.mount("/assets", StaticFiles(directory=os.path.join(frontend_dist, "assets")), name="assets")
+
+    # API以外のすべてのリクエストに対して React の index.html を返す
+    @app.get("/{full_path:path}")
+    async def serve_react(full_path: str):
+        target_file = os.path.join(frontend_dist, full_path)
+        if os.path.exists(target_file) and os.path.isfile(target_file):
+            return FileResponse(target_file)
+        return FileResponse(os.path.join(frontend_dist, "index.html"))
