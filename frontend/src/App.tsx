@@ -1,81 +1,119 @@
-import { useState } from 'react'
+import React, { useState, useEffect } from 'react';
+import './App.css';
 
-// 家計簿のデータの型（TypeScriptの型定義）
-interface Transaction {
+// 家計簿データの型定義
+interface Expense {
   id: number;
-  title: string;
+  date: string;
   amount: number;
+  category: string;
+  memo?: string;
 }
 
 function App() {
-  // 入力フォームの文字を管理する状態
-  const [title, setTitle] = useState('')
-  const [amount, setAmount] = useState('')
-  
-  // 登録された家計簿のリストを管理する状態
-  const [transactions, setTransactions] = useState<Transaction[]>([])
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [date, setDate] = useState('');
+  const [amount, setAmount] = useState('');
+  const [category, setCategory] = useState('');
+  const [memo, setMemo] = useState('');
 
-  // フォームが送信されたときに実行される関数
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault() // ページが勝手にリロードされるのを防ぐ
-    if (!title || !amount) return
+  // 1. ページ読み込み時にバックエンドからデータを取得（GET）
+  const fetchExpenses = async () => {
+    try {
+      const response = await fetch('/api/expenses');
+      if (response.ok) {
+        const data = await response.json();
+        setExpenses(data);
+      }
+    } catch (error) {
+      console.error('データの取得に失敗しました:', error);
+    }
+  };
 
-    // 新しいデータのオブジェクトを作る
-    const newTransaction: Transaction = {
-      id: Date.now(),
-      title: title,
-      amount: Number(amount),
+  useEffect(() => {
+    fetchExpenses();
+  }, []);
+
+  // 2. フォーム送信時にデータをバックエンドに保存（POST）
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!date || !amount || !category) {
+      alert('日付、金額、カテゴリは必須です');
+      return;
     }
 
-    // リストに新しいデータを追加する
-    setTransactions([...transactions, newTransaction])
-    
-    // 入力フォームを空っぽにリセットする
-    setTitle('')
-    setAmount('')
-  }
+    const newExpense = {
+      date,
+      amount: parseFloat(amount),
+      category,
+      memo,
+    };
+
+    try {
+      const response = await fetch('/api/expenses', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(newExpense),
+      });
+
+      if (response.ok) {
+        // 入力欄をクリア
+        setDate('');
+        setAmount('');
+        setCategory('');
+        setMemo('');
+        // リストを再取得して画面を更新
+        fetchExpenses();
+      } else {
+        alert('保存に失敗しました');
+      }
+    } catch (error) {
+      console.error('通信エラー:', error);
+    }
+  };
 
   return (
-    <div style={{ padding: '30px', maxWidth: '400px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1>家計簿アプリ</h1>
+    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
+      <h1>💰 家計簿アプリ</h1>
 
-      {/* 1. 入力フォーム */}
-      <form onSubmit={handleSubmit} style={{ display: 'flex', flexDirection: 'column', gap: '12px', marginBottom: '30px' }}>
-        <input
-          type="text"
-          placeholder="項目名（例：食費）"
-          value={title}
-          onChange={(e) => setTitle(e.target.value)}
-          style={{ padding: '10px', fontSize: '16px' }}
-        />
-        <input
-          type="number"
-          placeholder="金額（例：1000）"
-          value={amount}
-          onChange={(e) => setAmount(e.target.value)}
-          style={{ padding: '10px', fontSize: '16px' }}
-        />
-        <button type="submit" style={{ padding: '10px', fontSize: '16px', background: '#4CAF50', color: 'white', border: 'none', cursor: 'pointer' }}>
-          記録する
+      {/* 入力フォーム */}
+      <form onSubmit={handleSubmit} style={{ background: '#f9f9f9', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+        <h3>支出の追加</h3>
+        <div style={{ marginBottom: '10px' }}>
+          <label>日付: </label>
+          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
+        </div>
+        <div style={{ marginBottom: '10px' }}>
+          <label>金額 (円): </label>
+          <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} required />
+        </div>
+        <div style={{ marginBottom: '10px' }}>
+          <label>カテゴリ: </label>
+          <input type="text" value={category} placeholder="例: 食費" onChange={(e) => setCategory(e.target.value)} required />
+        </div>
+        <div style={{ marginBottom: '10px' }}>
+          <label>メモ: </label>
+          <input type="text" value={memo} placeholder="例: スーパー" onChange={(e) => setMemo(e.target.value)} />
+        </div>
+        <button type="submit" style={{ padding: '8px 16px', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
+          保存する
         </button>
       </form>
 
-      {/* 2. 一覧表示エリア */}
-      <h2>履歴</h2>
-      {transactions.length === 0 ? (
-        <p style={{ color: '#888' }}>まだ記録がありません</p>
-      ) : (
-        <ul style={{ listStyle: 'none', padding: 0 }}>
-          {transactions.map((t) => (
-            <li key={t.id} style={{ display: 'flex', justifyContent: 'space-between', padding: '10px 0', borderBottom: '1px solid #eee' }}>
-              <span>{t.title}</span>
-              <strong>{t.amount}円</strong>
-            </li>
-          ))}
-        </ul>
-      )}
+      {/* 一覧表示 */}
+      <h3>支出一覧</h3>
+      <ul style={{ listStyle: 'none', padding: 0 }}>
+        {expenses.map((item) => (
+          <li key={item.id} style={{ background: '#fff', border: '1px solid #ddd', padding: '10px', marginBottom: '8px', borderRadius: '4px' }}>
+            <strong>{item.date}</strong> | {item.category} : <strong>¥{item.amount}</strong> 
+            {item.memo && <span style={{ color: '#666', marginLeft: '10px' }}>({item.memo})</span>}
+          </li>
+        ))}
+      </ul>
     </div>
-  )
+  );
 }
 
-export default App
+export default App;
