@@ -56,25 +56,6 @@ class ExpenseListResponse(BaseModel):
     total: int
 
 
-# --- 2. DB初期化関数 ---
-def init_db():
-    conn = sqlite3.connect("kakeibo.db")
-    cursor = conn.cursor()
-    cursor.execute("""
-        CREATE TABLE IF NOT EXISTS expenses (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
-            date TEXT NOT NULL,
-            category TEXT NOT NULL,
-            amount INTEGER NOT NULL,
-            memo TEXT
-        )
-    """)
-    conn.commit()
-    conn.close()
-
-init_db()
-
-
 # --- 3. APIエンドポイント（ルーティング） ---
 
 # 1. データの取得（GET）
