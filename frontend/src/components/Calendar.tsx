@@ -16,7 +16,7 @@ export default function Calendar() {
   // データをバックエンドから取得
   const fetchExpenses = async () => {
     try {
-      const response = await fetch('http://localhost:8000/api/expenses');
+      const response = await fetch('http://13.236.87.93:8000/api/expenses');
       if (response.ok) {
         const data = await response.json();
         setExpenses(data);
