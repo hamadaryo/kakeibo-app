@@ -6,6 +6,8 @@ import Settings from './components/Settings';
 import './App.css';
 import './index.css';
 
+
+
 export default function App() {
   const [activeTab, setActiveTab] = useState<'add' | 'calendar' | 'analytics' | 'settings'>('add');
 
