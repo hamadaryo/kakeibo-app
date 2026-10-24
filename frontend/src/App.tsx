@@ -33,7 +33,7 @@ export default function App() {
             }`}
           >
             <span className="text-xl">✏️</span>
-            <span className="text-[11px] mt-0.5">入浴</span>
+            <span className="text-[11px] mt-0.5">入浴bath</span>
           </button>
 
           <button
