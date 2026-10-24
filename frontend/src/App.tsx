@@ -14,11 +14,6 @@ export default function App() {
     <div className="min-h-screen bg-slate-100 flex justify-center items-start sm:py-8">
       {/* スマホサイズのメインコンテナ */}
       <div className="w-full sm:max-w-md bg-white min-h-screen sm:min-h-[840px] sm:rounded-3xl shadow-xl flex flex-col justify-between overflow-hidden border border-slate-200/60">
-        {/* アプリヘッダー */}
-        <header className="bg-white/80 backdrop-blur-md px-6 py-4 border-b border-slate-100 sticky top-0 z-10 text-center">
-          <h1 className="text-lg font-bold text-slate-800 tracking-wide">家計簿 App</h1>
-        </header>
-
         {/* メインコンテンツエリア */}
         <main className="p-5 flex-1 overflow-y-auto">
           {activeTab === 'add' && <Add />}
