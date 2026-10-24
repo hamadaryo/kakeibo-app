@@ -12,7 +12,7 @@ export default function Add() {
   const [memo, setMemo] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
-  const API_BASE_URL = import.meta.env.REACT_API_BASE_URL;
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
 
   // 収支タイプ変更時の処理
   const handleTypeChange = (newType: 'expense' | 'income') => {
