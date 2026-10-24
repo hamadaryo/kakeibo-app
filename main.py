@@ -80,25 +80,6 @@ def create_expense(expense: ExpenseCreate, db: Session = Depends(get_db)):
     db.refresh(db_expense)
     return db_expense
 
-# 3. 1件取得 API（編集画面などで使用）
-@app.get("/api/expenses/{expense_id}", response_model=ExpenseResponse)
-def get_expense(expense_id: int):
-    conn = sqlite3.connect("kakeibo.db")
-    cursor = conn.cursor()
-    cursor.execute("SELECT id, date, category, amount, memo FROM expenses WHERE id = ?", (expense_id,))
-    row = cursor.fetchone()
-    conn.close()
-    
-    if not row:
-        raise HTTPException(status_code=404, detail="指定された支出が見つかりません")
-        
-    return {
-        "id": row[0],
-        "date": row[1],
-        "category": row[2],
-        "amount": row[3]
-    }
-
 
 # 4. 更新 API
 @app.put("/api/expenses/{expense_id}", response_model=ExpenseResponse)

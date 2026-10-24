@@ -1,119 +1,76 @@
-import React, { useState, useEffect } from 'react';
+import { useState } from 'react';
+import Add from './components/Add';
+import Calendar from './components/Calendar';
+import Analytics from './components/Analytics';
+import Settings from './components/Settings';
 import './App.css';
+import './index.css';
 
-// 家計簿データの型定義
-interface Expense {
-  id: number;
-  date: string;
-  amount: number;
-  category: string;
-  memo?: string;
-}
-
-function App() {
-  const [expenses, setExpenses] = useState<Expense[]>([]);
-  const [date, setDate] = useState('');
-  const [amount, setAmount] = useState('');
-  const [category, setCategory] = useState('');
-  const [memo, setMemo] = useState('');
-
-  // 1. ページ読み込み時にバックエンドからデータを取得（GET）
-  const fetchExpenses = async () => {
-    try {
-      const response = await fetch('/api/expenses');
-      if (response.ok) {
-        const data = await response.json();
-        setExpenses(data);
-      }
-    } catch (error) {
-      console.error('データの取得に失敗しました:', error);
-    }
-  };
-
-  useEffect(() => {
-    fetchExpenses();
-  }, []);
-
-  // 2. フォーム送信時にデータをバックエンドに保存（POST）
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!date || !amount || !category) {
-      alert('日付、金額、カテゴリは必須です');
-      return;
-    }
-
-    const newExpense = {
-      date,
-      amount: parseFloat(amount),
-      category,
-      memo,
-    };
-
-    try {
-      const response = await fetch('/api/expenses', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
-        body: JSON.stringify(newExpense),
-      });
-
-      if (response.ok) {
-        // 入力欄をクリア
-        setDate('');
-        setAmount('');
-        setCategory('');
-        setMemo('');
-        // リストを再取得して画面を更新
-        fetchExpenses();
-      } else {
-        alert('保存に失敗しました');
-      }
-    } catch (error) {
-      console.error('通信エラー:', error);
-    }
-  };
+export default function App() {
+  const [activeTab, setActiveTab] = useState<'add' | 'calendar' | 'analytics' | 'settings'>('add');
 
   return (
-    <div style={{ padding: '20px', maxWidth: '600px', margin: '0 auto', fontFamily: 'sans-serif' }}>
-      <h1>💰 家計簿アプリ</h1>
+    
+    <div className="min-h-screen bg-slate-100 flex justify-center items-start sm:py-8">
+      {/* スマホサイズのメインコンテナ */}
+      <div className="w-full sm:max-w-md bg-white min-h-screen sm:min-h-[840px] sm:rounded-3xl shadow-xl flex flex-col justify-between overflow-hidden border border-slate-200/60">
+        {/* アプリヘッダー */}
+        <header className="bg-white/80 backdrop-blur-md px-6 py-4 border-b border-slate-100 sticky top-0 z-10 text-center">
+          <h1 className="text-lg font-bold text-slate-800 tracking-wide">家計簿 App</h1>
+        </header>
 
-      {/* 入力フォーム */}
-      <form onSubmit={handleSubmit} style={{ background: '#f9f9f9', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
-        <h3>支出の追加</h3>
-        <div style={{ marginBottom: '10px' }}>
-          <label>日付: </label>
-          <input type="date" value={date} onChange={(e) => setDate(e.target.value)} required />
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label>金額 (円): </label>
-          <input type="number" value={amount} onChange={(e) => setAmount(e.target.value)} required />
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label>カテゴリ: </label>
-          <input type="text" value={category} placeholder="例: 食費" onChange={(e) => setCategory(e.target.value)} required />
-        </div>
-        <div style={{ marginBottom: '10px' }}>
-          <label>メモ: </label>
-          <input type="text" value={memo} placeholder="例: スーパー" onChange={(e) => setMemo(e.target.value)} />
-        </div>
-        <button type="submit" style={{ padding: '8px 16px', background: '#4CAF50', color: 'white', border: 'none', borderRadius: '4px', cursor: 'pointer' }}>
-          保存する
-        </button>
-      </form>
+        {/* メインコンテンツエリア */}
+        <main className="p-5 flex-1 overflow-y-auto">
+          {activeTab === 'add' && <Add />}
+          {activeTab === 'calendar' && <Calendar />}
+          {activeTab === 'analytics' && <Analytics />}
+          {activeTab === 'settings' && <Settings />}
+        </main>
 
-      {/* 一覧表示 */}
-      <h3>支出一覧</h3>
-      <ul style={{ listStyle: 'none', padding: 0 }}>
-        {expenses.map((item) => (
-          <li key={item.id} style={{ background: '#fff', border: '1px solid #ddd', padding: '10px', marginBottom: '8px', borderRadius: '4px' }}>
-            <strong>{item.date}</strong> | {item.category} : <strong>¥{item.amount}</strong> 
-            {item.memo && <span style={{ color: '#666', marginLeft: '10px' }}>({item.memo})</span>}
-          </li>
-        ))}
-      </ul>
+        {/* 下部固定タブナビゲーション */}
+        <nav className="bg-white border-t border-slate-100 px-3 py-2 flex justify-around items-center sticky bottom-0 z-10">
+          <button
+            onClick={() => setActiveTab('add')}
+            className={`flex flex-col items-center py-1 px-3 rounded-2xl transition-all ${
+              activeTab === 'add' ? 'text-indigo-600 font-bold bg-indigo-50' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <span className="text-xl">✏️</span>
+            <span className="text-[11px] mt-0.5">入浴</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('calendar')}
+            className={`flex flex-col items-center py-1 px-3 rounded-2xl transition-all ${
+              activeTab === 'calendar' ? 'text-indigo-600 font-bold bg-indigo-50' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <span className="text-xl">📅</span>
+            <span className="text-[11px] mt-0.5">カレンダー</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('analytics')}
+            className={`flex flex-col items-center py-1 px-3 rounded-2xl transition-all ${
+              activeTab === 'analytics' ? 'text-indigo-600 font-bold bg-indigo-50' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <span className="text-xl">📊</span>
+            <span className="text-[11px] mt-0.5">分析</span>
+          </button>
+
+          <button
+            onClick={() => setActiveTab('settings')}
+            className={`flex flex-col items-center py-1 px-3 rounded-2xl transition-all ${
+              activeTab === 'settings' ? 'text-indigo-600 font-bold bg-indigo-50' : 'text-slate-400 hover:text-slate-600'
+            }`}
+          >
+            <span className="text-xl">⚙️</span>
+            <span className="text-[11px] mt-0.5">設定</span>
+          </button>
+        </nav>
+
+      </div>
     </div>
   );
 }
-
-export default App;
