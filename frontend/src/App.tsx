@@ -11,9 +11,9 @@ export default function App() {
 
   return (
     
-    <div className="min-h-screen bg-slate-100 flex justify-center items-start sm:py-8">
+    <div className="min-h-screen bg-slate-100 flex justify-center items-start sm:py-0">
       {/* スマホサイズのメインコンテナ */}
-      <div className="w-full sm:max-w-md bg-white min-h-screen sm:min-h-[840px] sm:rounded-3xl shadow-xl flex flex-col justify-between overflow-hidden border border-slate-200/60">
+      <div className="relative w-full sm:max-w-md bg-white min-h-screen sm:min-h-[840px] sm:rounded-3xl shadow-xl flex flex-col justify-between overflow-hidden border border-slate-200/60">
         {/* メインコンテンツエリア */}
         <main className="p-5 flex-1 overflow-y-auto">
           {activeTab === 'add' && <Add />}
@@ -23,7 +23,7 @@ export default function App() {
         </main>
 
         {/* 下部固定タブナビゲーション */}
-        <nav className="bg-white border-t border-slate-100 px-3 py-2 flex justify-around items-center sticky bottom-0 z-10">
+        <nav className="absolute bg-white border-t border-slate-100 px-3 py-2 flex justify-around items-center bottom-0 left-0 right-0 z-10">
           <button
             onClick={() => setActiveTab('add')}
             className={`flex flex-col items-center py-1 px-3 rounded-2xl transition-all ${

@@ -31,7 +31,7 @@ export default function Add() {
     setMessage(null);
 
     try {
-      const response = await fetch('http://13.236.87.93:8000/api/expenses', {
+      const response = await fetch('{API_BASE_URL}/api/expenses', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
