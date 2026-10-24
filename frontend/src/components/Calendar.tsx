@@ -12,11 +12,12 @@ type ExpenseItem = {
 export default function Calendar() {
   const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-
+  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  
   // データをバックエンドから取得
   const fetchExpenses = async () => {
     try {
-      const response = await fetch('{API_BASE_URL}/api/expenses');
+      const response = await fetch(`${API_BASE_URL}/api/expenses`);
       if (response.ok) {
         const data = await response.json();
         setExpenses(data);
