@@ -65,7 +65,7 @@ export default function Add() {
   const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
   return (
-    <div className="bg-[#fffff6] min-h-full flex flex-col -m-5 space-y-15">
+    <div className="bg-[#fffff6] min-h-full flex flex-col -m-5 space-y-5">
       {/* 1. 共通ヘッダー（Add画面専用の中身を配置） */}
       <Header>
         <div className="bg-gray-100 rounded-full w-[75%] mx-auto flex justify-center space-y-4">
@@ -108,12 +108,12 @@ export default function Add() {
         </div>
       )}
 
-      <form onSubmit={handleSubmit} className="space-y-5">
+      <form onSubmit={handleSubmit} className="space-y-10">
 
         {/* 金額 */}
         <div>
         <div className="relative">
-          <span className="absolute left-3 top-4 mt-27 -translate-y-1/2 text-[15px] font-bold text-gray-400 pointer-events-none">
+          <span className="absolute mt-8 left-3 top-4-translate-y-1/2 text-[15px] font-bold text-gray-400 pointer-events-none">
             金額
           </span>          
           <input
@@ -121,7 +121,7 @@ export default function Add() {
             placeholder="0"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full pl-65 py-3 mt-25 border border-gray-200 focus:outline-none focus:bg-gray-100 text-gray-800 bg-white text-right"
+            className="w-full  pl-65 py-3 mt-5 border border-gray-200 focus:outline-none focus:bg-gray-100 text-gray-800 bg-white text-right"
             required
             min="0"
           />
