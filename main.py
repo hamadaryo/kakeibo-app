@@ -6,6 +6,7 @@ from fastapi.responses import FileResponse
 from pydantic import BaseModel
 from fastapi.middleware.cors import CORSMiddleware
 from sqlalchemy.orm import Session
+from sqlalchemy import desc
 from typing import List
 import models
 from database import engine, get_db
@@ -61,7 +62,7 @@ class ExpenseListResponse(BaseModel):
 # 1. データの取得（GET）
 @app.get("/api/expenses", response_model=List[ExpenseResponse])
 def get_expenses(db: Session = Depends(get_db)):
-    expenses = db.query(models.Expense).all()
+    expenses = db.query(models.Expense).order_by(desc(models.Expense.date)).all()
     return expenses
 
 

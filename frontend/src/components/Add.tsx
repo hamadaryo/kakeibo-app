@@ -22,15 +22,6 @@ export default function Add() {
   };
   // 1. input要素への参照を作成
   const InputRef = useRef<HTMLInputElement>(null);
-  
-
-  // 2. ボックス全体がクリックされたときの処理
-  const handleContainerClick = () => {
-    if (InputRef.current) {
-      // 標準のピッカーをプログラムから強制的に開く
-      InputRef.current.showPicker?.(); 
-    }
-  };
 
   // フォーム送信処理（API呼び出し）
   const handleSubmit = async (e: React.FormEvent) => {
