@@ -65,10 +65,10 @@ export default function Add() {
   const categories = type === 'expense' ? EXPENSE_CATEGORIES : INCOME_CATEGORIES;
 
   return (
-    <div className="bg-[#fffff6] min-h-full flex flex-col -m-5">
+    <div className="bg-[#fffff6] min-h-full flex flex-col -m-5 space-y-15">
       {/* 1. 共通ヘッダー（Add画面専用の中身を配置） */}
       <Header>
-        <div className="bg-gray-100 rounded-full w-[75%] mx-auto flex justify-center space-x-4">
+        <div className="bg-gray-100 rounded-full w-[75%] mx-auto flex justify-center space-y-4">
           {/* 支出 / 収入 タブ切替（アニメーション付き） */}
           <div className="relative flex bg-gray-100 p-1 rounded-full w-full">
             {/* 選択中に左右へ滑らかにスライドするオレンジの背景（つまみ） */}
@@ -109,12 +109,11 @@ export default function Add() {
       )}
 
       <form onSubmit={handleSubmit} className="space-y-5">
-       
-      <br/>
+
         {/* 金額 */}
         <div>
         <div className="relative">
-          <span className="absolute left-3 top-1/2 -translate-y-1/2 text-[15px] font-bold text-gray-400 pointer-events-none">
+          <span className="absolute left-3 top-4 mt-27 -translate-y-1/2 text-[15px] font-bold text-gray-400 pointer-events-none">
             金額
           </span>          
           <input
@@ -122,7 +121,7 @@ export default function Add() {
             placeholder="0"
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
-            className="w-full pl-65 py-3 border border-gray-200 focus:outline-none focus:bg-gray-100 text-gray-800 bg-white text-right"
+            className="w-full pl-65 py-3 mt-25 border border-gray-200 focus:outline-none focus:bg-gray-100 text-gray-800 bg-white text-right"
             required
             min="0"
           />
@@ -130,7 +129,7 @@ export default function Add() {
       </div>
 
         {/* 日付 */}
-        <div>
+        <div className="relative mt-8">
           <div className="relative">
             <div 
                 onClick={() => {
@@ -146,8 +145,8 @@ export default function Add() {
               </span>
               
               {/* 実際の値を右端に綺麗に表示する */}
-              <span className="text-gray-800 text-sm">
-                {date || "2026-10-24"}
+              <span className="text-gray-800 text-sm text-[18px]">
+                {date}
               </span>
 
               {/* 隠し date 入力（クリックやフォーカスを受け付けるため） */}
@@ -169,7 +168,7 @@ export default function Add() {
           <select
             value={category}
             onChange={(e) => setCategory(e.target.value)}
-            className="w-full p-3 border border-gray-200 focus:outline-none focus:bg-gray-100 text-gray-800 bg-white text-right"
+            className="w-full p-3 border border-gray-200 focus:outline-none focus:bg-gray-100 text-gray-800 bg-white text-right text-[18px]"
           >
             {categories.map((cat) => (
               <option key={cat} value={cat}>
@@ -189,7 +188,7 @@ export default function Add() {
             placeholder="店名や用途など"
             value={memo}
             onChange={(e) => setMemo(e.target.value)}
-            className="w-full p-3 border border-gray-200 focus:outline-none focus:bg-gray-100 text-gray-800 bg-white text-right"
+            className="w-full p-3 border border-gray-200 focus:outline-none focus:bg-gray-100 text-gray-800 bg-white text-right text-[18px]"
           />
         </div>
         </div>
