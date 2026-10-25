@@ -6,17 +6,15 @@ import Settings from './components/Settings';
 import './App.css';
 import './index.css';
 
-
-
 export default function App() {
   const [activeTab, setActiveTab] = useState<'add' | 'calendar' | 'analytics' | 'settings'>('add');
 
   return (
     <div className="min-h-screen bg-slate-100 flex justify-center items-center sm:py-0">
-      {/* スマホサイズのメインコンテナ：h-screen と sm:h-[840px] で高さを完全に固定する */}
+      {/* スマホサイズのメインコンテナ */}
       <div className="relative w-full sm:max-w-md bg-white h-screen sm:h-[840px] sm:rounded-3xl shadow-xl flex flex-col justify-between overflow-hidden border border-slate-200/65">
-        
-        {/* メインコンテンツエリア：overflow-y-auto と pb-20（下部ナビに隠れないための余白）をつける */}
+
+        {/* メインコンテンツエリア（各タブの画面がここに切り替わります） */}
         <main className="p-5 flex-1 overflow-y-auto pb-20">
           {activeTab === 'add' && <Add />}
           {activeTab === 'calendar' && <Calendar />}
@@ -24,7 +22,7 @@ export default function App() {
           {activeTab === 'settings' && <Settings />}
         </main>
 
-        {/* 下部固定タブナビゲーション：absolute で底面に固定 */}
+        {/* 下部固定タブナビゲーション */}
         <nav className="absolute bg-white border-t border-slate-100 px-3 py-2 flex justify-around items-center bottom-0 left-0 right-0 z-10 shadow-lg">
           <button
             onClick={() => setActiveTab('add')}

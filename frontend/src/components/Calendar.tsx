@@ -1,4 +1,5 @@
 import { useEffect, useState } from 'react';
+import Header from './Header'; // 共通ヘッダーをインポート
 
 type ExpenseItem = {
   id: number;
@@ -12,7 +13,7 @@ type ExpenseItem = {
 export default function Calendar() {
   const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
-  const API_BASE_URL = import.meta.env.VITE_API_BASE_URL;
+  const API_BASE_URL = 'http://localhost:5173/';
   
   // データをバックエンドから取得
   const fetchExpenses = async () => {
@@ -60,8 +61,8 @@ export default function Calendar() {
 
   return (
     <div className="bg-white min-h-full flex flex-col -m-5">
-      {/* 1. オレンジヘッダー */}
-      <div className="bg-[#e07a38] text-white py-3 px-4 flex justify-between items-center relative">
+      {/* 1. 共通ヘッダー（カレンダー専用の中身を配置） */}
+      <Header>
         <div className="flex-1 text-center flex justify-center items-center space-x-6">
           <button className="text-xl font-bold hover:opacity-75">‹</button>
           <span className="text-xl font-bold tracking-wide">2026年10月</span>
@@ -70,7 +71,7 @@ export default function Calendar() {
         <button className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">
           🔍
         </button>
-      </div>
+      </Header>
 
       {/* 2. カレンダーグリッド */}
       <div className="bg-white border-b border-gray-200">
