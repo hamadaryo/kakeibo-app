@@ -12,20 +12,20 @@ export default function App() {
   const [activeTab, setActiveTab] = useState<'add' | 'calendar' | 'analytics' | 'settings'>('add');
 
   return (
-    
-    <div className="min-h-screen bg-slate-100 flex justify-center items-start sm:py-0">
-      {/* スマホサイズのメインコンテナ */}
-      <div className="relative w-full sm:max-w-md bg-white min-h-screen sm:min-h-[840px] sm:rounded-3xl shadow-xl flex flex-col justify-between overflow-hidden border border-slate-200/60">
-        {/* メインコンテンツエリア */}
-        <main className="p-5 flex-1 overflow-y-auto">
+    <div className="min-h-screen bg-slate-100 flex justify-center items-center sm:py-0">
+      {/* スマホサイズのメインコンテナ：h-screen と sm:h-[840px] で高さを完全に固定する */}
+      <div className="relative w-full sm:max-w-md bg-white h-screen sm:h-[840px] sm:rounded-3xl shadow-xl flex flex-col justify-between overflow-hidden border border-slate-200/65">
+        
+        {/* メインコンテンツエリア：overflow-y-auto と pb-20（下部ナビに隠れないための余白）をつける */}
+        <main className="p-5 flex-1 overflow-y-auto pb-20">
           {activeTab === 'add' && <Add />}
           {activeTab === 'calendar' && <Calendar />}
           {activeTab === 'analytics' && <Analytics />}
           {activeTab === 'settings' && <Settings />}
         </main>
 
-        {/* 下部固定タブナビゲーション */}
-        <nav className="absolute bg-white border-t border-slate-100 px-3 py-2 flex justify-around items-center bottom-0 left-0 right-0 z-10">
+        {/* 下部固定タブナビゲーション：absolute で底面に固定 */}
+        <nav className="absolute bg-white border-t border-slate-100 px-3 py-2 flex justify-around items-center bottom-0 left-0 right-0 z-10 shadow-lg">
           <button
             onClick={() => setActiveTab('add')}
             className={`flex flex-col items-center py-1 px-3 rounded-2xl transition-all ${
