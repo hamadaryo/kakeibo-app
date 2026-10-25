@@ -60,7 +60,7 @@ export default function Calendar() {
   });
 
   return (
-    <div className="bg-white min-h-full flex flex-col -m-5">
+    <div className="bg-white min-h-full flex flex-col">
       {/* 1. 共通ヘッダー（カレンダー専用の中身を配置） */}
       <Header>
         <div className="flex-1 text-center flex justify-center items-center space-x-6">

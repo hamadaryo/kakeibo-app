@@ -13,9 +13,8 @@ export default function App() {
     <div className="min-h-screen bg-slate-100 flex justify-center items-center sm:py-0">
       {/* スマホサイズのメインコンテナ */}
       <div className="relative w-full sm:max-w-md bg-white h-screen sm:h-[840px] sm:rounded-3xl shadow-xl flex flex-col justify-between overflow-hidden border border-slate-200/65">
-
         {/* メインコンテンツエリア（各タブの画面がここに切り替わります） */}
-        <main className="p-5 flex-1 overflow-y-auto pb-20">
+        <main className="p-0 flex-1 overflow-y-auto pb-20">
           {activeTab === 'add' && <Add />}
           {activeTab === 'calendar' && <Calendar />}
           {activeTab === 'analytics' && <Analytics />}

@@ -6,7 +6,7 @@ type HeaderProps = {
 
 export default function Header({ children }: HeaderProps) {
   return (
-    <header className="relative fixed top-0 left-0 right-0 z-10 bg-[#e07a38] text-white py-3 px-4 flex justify-between items-center shrink-0">
+    <header className="sticky top-0 left-0 right-0 z-10 bg-[#e07a38] text-white py-3 px-4 flex justify-between items-center shrink-0">
         {children}
     </header>
   );
