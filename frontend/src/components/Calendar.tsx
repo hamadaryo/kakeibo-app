@@ -44,12 +44,12 @@ export default function Calendar() {
   });
     // 2. 収入の合計を計算
   const totalIncome = monthlyExpenses
-    .filter((item) => item.type === 'income')
+    .filter((item) => item.category === '給与')
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
   // 3. 支出の合計を計算
   const totalExpense = monthlyExpenses
-    .filter((item) => item.type === 'expense')
+    .filter((item) => item.category !== '給与')
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
   // 4. 収支の総合計（収入 - 支出、またはお好みで）
