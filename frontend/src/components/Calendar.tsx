@@ -13,7 +13,28 @@ type ExpenseItem = {
 export default function Calendar() {
   const [expenses, setExpenses] = useState<ExpenseItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
+  const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
+  const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth() + 1);
+  const formattedCurrentMonth = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
   const API_BASE_URL = 'http://localhost:5173/';
+    
+    // 1. 現在表示している月のデータだけを抽出
+  const monthlyExpenses = expenses.filter((item) => {
+    // item.date が "2026-10-25" の形式であると仮定
+    return item.date.startsWith(formattedCurrentMonth);
+  });
+    // 2. 収入の合計を計算
+  const totalIncome = monthlyExpenses
+    .filter((item) => item.type === 'income')
+    .reduce((sum, item) => sum + Number(item.amount), 0);
+
+  // 3. 支出の合計を計算
+  const totalExpense = monthlyExpenses
+    .filter((item) => item.type === 'expense')
+    .reduce((sum, item) => sum + Number(item.amount), 0);
+
+  // 4. 収支の総合計（収入 - 支出、またはお好みで）
+  const balance = totalIncome - totalExpense;
   
   // データをバックエンドから取得
   const fetchExpenses = async () => {
@@ -34,16 +55,6 @@ export default function Calendar() {
     fetchExpenses();
   }, []);
 
-  // 集計計算
-  const totalIncome = expenses
-    .filter((item) => item.type === 'income')
-    .reduce((sum, item) => sum + item.amount, 0);
-
-  const totalExpense = expenses
-    .filter((item) => item.type === 'expense')
-    .reduce((sum, item) => sum + item.amount, 0);
-
-  const totalBalance = totalIncome - totalExpense;
 
   // 日付ごとのグループ化
   const groupedExpenses = expenses.reduce((acc, item) => {
@@ -59,22 +70,63 @@ export default function Calendar() {
     return dayNum;
   });
 
+  // 前月ボタンを押したときの処理
+  const handlePrevMonth = () => {
+    if (currentMonth === 1) {
+      setCurrentYear(currentYear - 1);
+      setCurrentMonth(12);
+    } else {
+      setCurrentMonth(currentMonth - 1);
+    }
+  };
+
+  // 翌月ボタンを押したときの処理
+  const handleNextMonth = () => {
+    if (currentMonth === 12) {
+      setCurrentYear(currentYear + 1);
+      setCurrentMonth(1);
+    } else {
+      setCurrentMonth(currentMonth + 1);
+    }
+  };
+
   return (
     <div className="bg-white min-h-full flex flex-col">
       {/* 1. 共通ヘッダー（カレンダー専用の中身を配置） */}
       <Header>
-        <div className="flex-1 text-center flex justify-center items-center space-x-6">
-          <button className="text-xl font-bold hover:opacity-75">‹</button>
-          <span className="text-xl font-bold tracking-wide">2026年10月</span>
-          <button className="text-xl font-bold hover:opacity-75">›</button>
+        {/* 3列のグリッドにする：[左の余白/ボタン] [中央の月] [右のアイコン] */}
+        <div className="grid grid-cols-3 items-center w-full">
+          {/* 1列目：左側（バランスを取るための空要素、または左側ボタンなど） */}
+          <div></div>
+          {/* 2列目：中央の月切り替え（常にヘッダー全体の真ん中に配置されます） */}
+          <div className="flex items-center justify-center space-x-3">
+            <button 
+              onClick={handlePrevMonth}
+              className="p-1 hover:bg-white/10 rounded transition-colors text-lg font-bold"
+            >
+              &lt;
+            </button>
+            <span className="text-lg font-bold whitespace-nowrap">
+              {currentYear}年{currentMonth}月
+            </span>
+            <button 
+              onClick={handleNextMonth}
+              className="p-1 hover:bg-white/10 rounded transition-colors text-lg font-bold"
+            >
+              &gt;
+            </button>
+          </div>
+          {/* 3列目：右側のアイコン（右端に寄せる） */}
+          <div className="flex justify-end">
+            <button className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors">
+              {/* 虫眼鏡アイコンなどのSVGや絵文字 */}
+              🔍
+            </button>
+          </div>
         </div>
-        <button className="w-8 h-8 rounded-full bg-white/20 flex items-center justify-center text-sm font-bold">
-          🔍
-        </button>
       </Header>
-
       {/* 2. カレンダーグリッド */}
-      <div className="bg-white border-b border-gray-200">
+      <div className="sticky top-0 left-0 right-0 bg-white border-b border-gray-200">
         {/* 曜日 */}
         <div className="grid grid-cols-7 text-center text-[11px] py-1 border-b border-gray-100 font-medium">
           <span className="text-red-400">Sun</span>
@@ -129,20 +181,18 @@ export default function Calendar() {
       </div>
 
       {/* 3. 収入・支出・合計バー */}
-      <div className="grid grid-cols-3 text-center py-2 bg-gray-50 border-b border-gray-200 text-xs">
-        <div>
-          <div className="text-gray-400 text-[10px]">収入</div>
-          <div className="font-bold text-gray-800 text-sm">{totalIncome.toLocaleString()}円</div>
+      <div className="flex justify-around py-3 bg-white border-b border-gray-200">
+        <div className="text-center">
+          <p className="text-xs text-gray-500">収入</p>
+          <p className="text-sm font-bold text-green-600">{totalIncome.toLocaleString()}円</p>
         </div>
-        <div>
-          <div className="text-gray-400 text-[10px]">支出</div>
-          <div className="font-bold text-gray-800 text-sm">{totalExpense.toLocaleString()}円</div>
+        <div className="text-center">
+          <p className="text-xs text-gray-500">支出</p>
+          <p className="text-sm font-bold text-red-500">{totalExpense.toLocaleString()}円</p>
         </div>
-        <div>
-          <div className="text-gray-400 text-[10px]">合計</div>
-          <div className={`font-bold text-sm ${totalBalance < 0 ? 'text-gray-800' : 'text-blue-600'}`}>
-            {totalBalance.toLocaleString()}円
-          </div>
+        <div className="text-center">
+          <p className="text-xs text-gray-500">合計</p>
+          <p className="text-sm font-bold text-blue-600">{balance.toLocaleString()}円</p>
         </div>
       </div>
 
