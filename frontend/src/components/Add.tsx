@@ -13,7 +13,7 @@ export default function Add() {
   const [memo, setMemo] = useState<string>('');
   const [isSubmitting, setIsSubmitting] = useState<boolean>(false);
   const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
-  const API_BASE_URL = 'http://localhost:5173/';
+  const API_BASE_URL = 'http://13.236.87.93:8000';
 
   // 収支タイプ変更時の処理
   const handleTypeChange = (newType: 'expense' | 'income') => {

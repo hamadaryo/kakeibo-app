@@ -16,7 +16,7 @@ export default function Calendar() {
   const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth() + 1);
   const formattedCurrentMonth = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-  const API_BASE_URL = 'http://localhost:5173/';
+  const API_BASE_URL = 'http://13.236.87.93:8000';
   
   // データをバックエンドから取得
   const fetchExpenses = async () => {
