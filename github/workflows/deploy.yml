@@ -1,0 +1,35 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: [ main ]  # mainブランチにpushされたときに実行
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      - name: Set up SSH
+        uses: webfactory/ssh-agent@v0.9.0
+        with:
+          ssh-private-key: ${{ secrets.EC2_SSH_KEY }}
+
+      - name: Deploy to EC2
+        env:
+          HOST: ${{ secrets.EC2_HOST }}
+          USER: ${{ secrets.EC2_USER }}
+          PORT: ${{ secrets.EC2_SSH_PORT }}
+        run: |
+          # 知らないホストからの接続警告をスキップ
+          mkdir -p ~/.ssh
+          echo "StrictHostKeyChecking no" >> ~/.ssh/config
+
+          # EC2にSSH接続し、最新コードを取得して反映
+          ssh -p $PORT $USER@$HOST << 'EOF'
+            cd /home/ec2-user/kakeibo-app  # ※ご自身のアプリのパスに合わせて調整してください
+            git fetch origin main
+            git reset --hard origin/main
+            echo "Deployment completed successfully!"
+          EOF
