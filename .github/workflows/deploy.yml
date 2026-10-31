@@ -29,5 +29,13 @@ jobs:
             cd /home/ec2-user/kakeibo-app
             git fetch origin main
             git reset --hard origin/main
-            echo "Deployment completed successfully!"
-          EOF
+            
+            # 依存関係のインストールやビルド（必要に応じて）
+            cd backend && pip install -r requirements.txt
+            cd ../frontend && npm install && npm run build
+            
+            # PM2でアプリを再起動（すでに起動していればリロード、なければ起動）
+            pm2 reload all || pm2 start ...
+            
+            echo "Deployment and restart completed successfully!"
+            EOF
