@@ -15,7 +15,7 @@ DISCORD_WEBHOOK_URL = 'https://discord.com/api/webhooks/1562401558287884318/UmHf
 
 
 def send_discord_notification(message):
-  if not DISCORD_WEBHOOK_URL or 'your-webhook-url' in DISCORD_WEBHOOK_URL:
+  if not DISCORD_WEBHOOK_URL or 'https://discord.com/api/webhooks/1562401558287884318/UmHfRzersLK_1zRYN2r-42jTgslDP5NXV669UanIpFCxUK-pZ1dq9SvdOGjKJ0f3aK' in DISCORD_WEBHOOK_URL:
     print('⚠️ Discord Webhook URLが正しく設定されていません。')
     return
 

@@ -25,6 +25,17 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
+@app.middleware("http")
+async def notify_middleware(request: Request, call_next):
+    # アクセス情報を取得してDiscord送信関数を呼び出し
+    path = request.url.path
+    client_host = request.client.host if request.client else "unknown"
+    
+    send_discord_notification(path, client_host)
+
+    response = await call_next(request)
+    return response
+
 
 # --- 1. Pydanticによるデータの「型・設計図」定義 ---
 # リクエスト（入力）用
