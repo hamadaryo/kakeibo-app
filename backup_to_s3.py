@@ -1,6 +1,7 @@
 import boto3
 from botocore.exceptions import NoCredentialsError
 import os
+from core.discord import send_discord_notification  # 作成した関数をインポート
 
 # S3クライアントの作成（AWSの認証情報は環境変数やAWS CLIの設定を利用）
 s3 = boto3.client('s3')
@@ -26,3 +27,14 @@ def upload_backup():
 
 if __name__ == "__main__":
     upload_backup()
+
+@app.middleware("http")
+async def notify_middleware(request: Request, call_next):
+    # アクセス情報を取得してDiscord送信関数を呼び出し
+    path = request.url.path
+    client_host = request.client.host if request.client else "unknown"
+    
+    send_discord_notification(path, client_host)
+
+    response = await call_next(request)
+    return response

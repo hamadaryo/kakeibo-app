@@ -8,7 +8,7 @@ def send_discord_notification(path: str, client_host: str):
     Discordにアクセス通知を送信する関数
     """
     message = {
-        "content": f"🚨 家計簿アプリにアクセスがありました！\n・パス: `{path}`\n・アクセス元IP: `{client_host}`"
+        "content": f"バックアップをS3にアップロードしました。\nアクセスパス: {path}\nクライアントIP: {client_host}"
     }
     try:
         requests.post(DISCORD_WEBHOOK_URL, json=message, timeout=3.0)
