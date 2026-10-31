@@ -22,14 +22,12 @@ jobs:
           USER: ${{ secrets.EC2_USER }}
           PORT: ${{ secrets.EC2_SSH_PORT }}
         run: |
-          # 知らないホストからの接続警告をスキップ
-          mkdir -p ~/.ssh
-          echo "StrictHostKeyChecking no" >> ~/.ssh/config
+            mkdir -p ~/.ssh
+            echo "StrictHostKeyChecking no" >> ~/.ssh/config
 
-          # EC2にSSH接続し、最新コードを取得して反映
-          ssh -p $PORT $USER@$HOST << 'EOF'
-            cd /home/ec2-user/kakeibo-app  # ※ご自身のアプリのパスに合わせて調整してください
-            git fetch origin main
-            git reset --hard origin/main
-            echo "Deployment completed successfully!"
-          EOF
+        ssh -p $PORT $USER@$HOST << 'EOF'
+          cd /home/ec2-user/kakeibo-app
+          git fetch origin main
+          git reset --hard origin/main
+          echo "Deployment completed successfully!"
+        EOF
