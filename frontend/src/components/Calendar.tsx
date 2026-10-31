@@ -56,7 +56,7 @@ export default function Calendar() {
   const balance = totalIncome - totalExpense;
 
   // 日付ごとのグループ化
-  const groupedExpenses = expenses.reduce((acc, item) => {
+  const groupedExpenses = monthlyExpenses.reduce((acc, item) => {
     if (!acc[item.date]) acc[item.date] = [];
     acc[item.date].push(item);
     return acc;
@@ -137,35 +137,42 @@ export default function Calendar() {
           <span className="text-blue-400">Sat</span>
         </div>
 
-        {/* 日付格子 */}
+{/* 日付格子 */}
         <div className="grid grid-cols-7 divide-x divide-y divide-gray-100 text-[10px]">
           {calendarDays.map((d, idx) => {
-            const isCurrentMonth = d >= 1 && d <= 31;
-            const isToday = d === 24; // 24日強調表示
-            const dateStr = `2026-10-${d < 10 ? '0' + d : d}`;
+            const isCurrentMonth = d >= 1 && d <= 31; // 簡易的な判定
+            
+            // 修正: 選択中の年・月を反映した日付文字列を動的に作成する
+            // ※dが1〜31の範囲外（前月・翌月のはみ出し分）の簡易処理はそのまま維持する場合
+            const targetMonth = d < 1 ? (currentMonth === 1 ? 12 : currentMonth - 1) : d > 31 ? (currentMonth === 12 ? 1 : currentMonth + 1) : currentMonth;
+            const targetYear = (d < 1 && currentMonth === 1) ? currentYear - 1 : (d > 31 && currentMonth === 12) ? currentYear + 1 : currentYear;
+            const actualDay = d < 1 ? d + 30 : d > 31 ? d - 31 : d;
+            
+            const formattedMonthStr = String(targetMonth).padStart(2, '0');
+            const formattedDayStr = String(actualDay).padStart(2, '0');
+            const dateStr = `${targetYear}-${formattedMonthStr}-${formattedDayStr}`;
+
             const dayExpenses = groupedExpenses[dateStr] || [];
 
             const dayIncome = dayExpenses
               .filter((e) => e.type === 'income')
-              .reduce((sum, e) => sum + e.amount, 0);
+              .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
 
             const dayExpense = dayExpenses
               .filter((e) => e.type === 'expense')
-              .reduce((sum, e) => sum + e.amount, 0);
+              .reduce((sum, e) => sum + (Number(e.amount) || 0), 0);
 
             return (
               <div key={idx} className="h-12 p-0.5 relative flex flex-col justify-between bg-white">
                 <div className="flex justify-between items-start">
                   <span
                     className={`inline-block w-4 h-4 text-center leading-4 rounded ${
-                      isToday
-                        ? 'bg-[#e07a38] text-white font-bold'
-                        : isCurrentMonth
+                      isCurrentMonth
                         ? 'text-gray-700'
                         : 'text-gray-300'
                     }`}
                   >
-                    {d > 0 ? d : d + 30}
+                    {actualDay}
                   </span>
                 </div>
                 {/* 収支金額 */}
