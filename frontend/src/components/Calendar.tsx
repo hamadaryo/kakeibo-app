@@ -17,24 +17,6 @@ export default function Calendar() {
   const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth() + 1);
   const formattedCurrentMonth = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
   const API_BASE_URL = 'http://localhost:5173/';
-    
-    // 1. 現在表示している月のデータだけを抽出
-  const monthlyExpenses = expenses.filter((item) => {
-    // item.date が "2026-10-25" の形式であると仮定
-    return item.date.startsWith(formattedCurrentMonth);
-  });
-    // 2. 収入の合計を計算
-  const totalIncome = monthlyExpenses
-    .filter((item) => item.type === 'income')
-    .reduce((sum, item) => sum + Number(item.amount), 0);
-
-  // 3. 支出の合計を計算
-  const totalExpense = monthlyExpenses
-    .filter((item) => item.type === 'expense')
-    .reduce((sum, item) => sum + Number(item.amount), 0);
-
-  // 4. 収支の総合計（収入 - 支出、またはお好みで）
-  const balance = totalIncome - totalExpense;
   
   // データをバックエンドから取得
   const fetchExpenses = async () => {
@@ -55,6 +37,23 @@ export default function Calendar() {
     fetchExpenses();
   }, []);
 
+    // 1. 現在表示している月のデータだけを抽出
+  const monthlyExpenses = expenses.filter((item) => {
+    // item.date が "2026-10-25" の形式であると仮定
+    return item.date.startsWith(formattedCurrentMonth);
+  });
+    // 2. 収入の合計を計算
+  const totalIncome = monthlyExpenses
+    .filter((item) => item.type === 'income')
+    .reduce((sum, item) => sum + Number(item.amount), 0);
+
+  // 3. 支出の合計を計算
+  const totalExpense = monthlyExpenses
+    .filter((item) => item.type === 'expense')
+    .reduce((sum, item) => sum + Number(item.amount), 0);
+
+  // 4. 収支の総合計（収入 - 支出、またはお好みで）
+  const balance = totalIncome - totalExpense;
 
   // 日付ごとのグループ化
   const groupedExpenses = expenses.reduce((acc, item) => {
