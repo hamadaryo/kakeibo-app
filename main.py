@@ -12,6 +12,8 @@ import models
 from database import engine, get_db
 from core.discord import send_discord_notification  # 作成した関数をインポート
 from google import genai
+from collections import defaultdict
+from fastapi import HTTPException
 
 models.Base.metadata.create_all(bind=engine)
 
@@ -156,20 +158,40 @@ class AiAnalyzeRequest(BaseModel):
 @app.post("/api/ai-analyze")
 def analyze_expenses(req: AiAnalyzeRequest):
     try:
-        # AIへの指示文（プロンプト）と家計簿データを組み立てる
+        # 1. Python側でカテゴリ別に支出を事前集計する
+        category_totals = defaultdict(int)
+        total_expense = 0
+
+        for item in req.expenses:
+            # req.expenses の中身が辞書型かオブジェクト型かに合わせて取得方法を調整してください
+            # (例: dict型なら item.get("category"), オブジェクト型なら item.category)
+            category = item.get("category") if isinstance(item, dict) else getattr(item, "category", "未分類")
+            amount = item.get("amount") if isinstance(item, dict) else getattr(item, "amount", 0)
+            
+            category_totals[category] += amount
+            total_expense += amount
+
+        # 2. AIに送るための軽量なサマリーテキストを組み立てる
+        summary_lines = [f"総支出: {total_expense}円", "【カテゴリ別内訳】"]
+        for cat, amt in category_totals.items():
+            summary_lines.append(f"- {cat}: {amt}円")
+        
+        summary_text = "\n".join(summary_lines)
+
+        # 3. 集計済みの軽いデータをプロンプトに含めてAIに送信
         prompt = f"""
-        あなたは優秀な家計簿アドバイザーです。以下の家計簿データ（JSON形式）を分析し、
-        1. 今月の支出の傾向（何に一番お金を使っているか）
-        2. 節約のための具体的なアドバイスや改善点
-        を、親しみやすく丁寧な日本語で、箇条書きを交えて300文字程度でまとめてください。
+あなたは優秀な家計簿アドバイザーです。以下の家計簿の集計データを分析し、
+1. 今月の支出の傾向（何に一番お金を使っているか）
+2. 節約のための具体的なアドバイスや改善点
+を、親しみやすく丁寧な日本語で、箇条書きを交えて300文字程度でまとめてください。
 
-        データ:
-        {req.expenses}
-        """
+集計データ:
+{summary_text}
+"""
 
-        # Gemini 2.5 Flash （高速で軽量なモデル）を使用して回答を生成
+        # Gemini 3.8 Flash で回答を生成
         response = ai_client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.8-flash",
             contents=prompt,
         )
 
