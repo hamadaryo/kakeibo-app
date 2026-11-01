@@ -11,10 +11,17 @@ from typing import List
 import models
 from database import engine, get_db
 from core.discord import send_discord_notification  # 作成した関数をインポート
+from google import genai
 
 models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="家計簿アプリ API")
+
+# --- Gemini AI分析用の設定 ---
+# ※ 取得したGeminiのAPIキーをここに直接入れるか、環境変数として設定してください
+# 環境変数からAPIキーを読み込む（もし設定されていなければ空文字やエラーにする）
+GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
+ai_client = genai.Client(api_key=GEMINI_API_KEY)
 
 # ⚠️ React（http://localhost:5173）からの通信を許可する設定
 app.add_middleware(
@@ -141,3 +148,33 @@ if os.path.exists(frontend_dist):
         if os.path.exists(target_file) and os.path.isfile(target_file):
             return FileResponse(target_file)
         return FileResponse(os.path.join(frontend_dist, "index.html"))
+
+class AiAnalyzeRequest(BaseModel):
+    expenses: list[dict]
+
+# AI分析用エンドポイント
+@app.post("/api/ai-analyze")
+def analyze_expenses(req: AiAnalyzeRequest):
+    try:
+        # AIへの指示文（プロンプト）と家計簿データを組み立てる
+        prompt = f"""
+        あなたは優秀な家計簿アドバイザーです。以下の家計簿データ（JSON形式）を分析し、
+        1. 今月の支出の傾向（何に一番お金を使っているか）
+        2. 節約のための具体的なアドバイスや改善点
+        を、親しみやすく丁寧な日本語で、箇条書きを交えて300文字程度でまとめてください。
+
+        データ:
+        {req.expenses}
+        """
+
+        # Gemini 2.5 Flash （高速で軽量なモデル）を使用して回答を生成
+        response = ai_client.models.generate_content(
+            model="gemini-2.5-flash",
+            contents=prompt,
+        )
+
+        return {"advice": response.text}
+
+    except Exception as e:
+        print(e)
+        raise HTTPException(status_code=500, detail="AI分析中にエラーが発生しました")
