@@ -94,7 +94,7 @@ export default function Calendar() {
       {/* 1. 共通ヘッダー（カレンダー専用の中身を配置） */}
       <Header>
         {/* 3列のグリッドにする：[左の余白/ボタン] [中央の月] [右のアイコン] */}
-        <div className="grid grid-cols-3 items-center w-full">
+        <div className="grid grid-cols-[1fr_2fr_1fr] items-center w-full">
           {/* 1列目：左側（バランスを取るための空要素、または左側ボタンなど） */}
           <div></div>
           {/* 2列目：中央の月切り替え（常にヘッダー全体の真ん中に配置されます） */}
