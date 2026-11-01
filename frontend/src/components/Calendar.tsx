@@ -16,9 +16,11 @@ export default function Calendar() {
   const [loading, setLoading] = useState<boolean>(true);
   const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth() + 1);
-  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
   const formattedCurrentMonth = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
   const API_BASE_URL = 'http://13.236.87.93:8000';
+
+  // 削除確認ポップアップ用のステート
+  const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
   const fetchExpenses = async () => {
     try {
@@ -46,7 +48,8 @@ export default function Calendar() {
       const response = await fetch(`${API_BASE_URL}/api/expenses/${deleteTargetId}`, {
         method: 'DELETE',
       });
-      if (response.ok) {
+      // 200 OK または 204 No Content を成功とみなす
+      if (response.ok || response.status === 204) {
         setExpenses(expenses.filter((item) => item.id !== deleteTargetId));
       } else {
         alert('削除に失敗しました');
@@ -59,15 +62,9 @@ export default function Calendar() {
     }
   };
 
-  const monthlyExpenses = expenses.filter((item) => 
-    item.date.startsWith(formattedCurrentMonth));
-
-  const totalIncome = monthlyExpenses.filter((item) => 
-    item.category === '給与').reduce((sum, item) => sum + Number(item.amount), 0);
-
-  const totalExpense = monthlyExpenses.filter((item) => 
-    item.category !== '給与').reduce((sum, item) => sum + Number(item.amount), 0);
-  
+  const monthlyExpenses = expenses.filter((item) => item.date.startsWith(formattedCurrentMonth));
+  const totalIncome = monthlyExpenses.filter((item) => item.category === '給与').reduce((sum, item) => sum + Number(item.amount), 0);
+  const totalExpense = monthlyExpenses.filter((item) => item.category !== '給与').reduce((sum, item) => sum + Number(item.amount), 0);
   const balance = totalIncome - totalExpense;
 
   const groupedExpenses = monthlyExpenses.reduce((acc, item) => {
@@ -163,7 +160,7 @@ export default function Calendar() {
         </div>
       </div>
 
-      {/* 日別明細リスト（Framer Motionによる滑らかなスワイプ対応） */}
+      {/* 日別明細リスト */}
       <div className="divide-y divide-gray-100 flex-1 bg-white">
         {loading ? (
           <div className="p-4 text-center text-gray-400 text-xs">読み込み中...</div>
@@ -177,33 +174,27 @@ export default function Calendar() {
               </div>
               {items.map((item) => (
                 <div key={item.id} className="relative overflow-hidden border-b border-gray-100 bg-red-500">
-                  {/* 背景に配置される削除ボタン */}
-                  <div className="absolute right-0 top-0 bottom-0 w-20 flex items-center justify-center text-white text-xs font-bold">
+                  {/* 背景の赤い削除ボタン（スライドすると現れる） */}
+                  <div
+                    onClick={() => setDeleteTargetId(item.id)}
+                    className="absolute right-0 top-0 bottom-0 w-20 flex items-center justify-center text-white text-xs font-bold cursor-pointer z-0"
+                  >
                     削除
                   </div>
 
-                  {/* ドラッグ（スワイプ）可能な前面のカード */}
+                  {/* スライド可能な前面のレコード */}
                   <motion.div
                     drag="x"
                     dragConstraints={{ left: -80, right: 0 }}
                     dragElastic={0.1}
-                    className="flex justify-between items-center px-4 py-2.5 text-xs text-gray-700 bg-white relative cursor-grab active:cursor-grabbing"
+                    className="flex justify-between items-center px-4 py-2.5 text-xs text-gray-700 bg-white relative z-10 cursor-grab active:cursor-grabbing"
                   >
                     <div>
                       <span className="font-medium">{item.category}</span>
                       {item.memo && <span className="text-gray-400 text-[11px] ml-1">({item.memo})</span>}
                     </div>
-                    <div className="flex items-center space-x-3">
-                      <span className={`font-medium ${item.type === 'expense' ? 'text-gray-800' : 'text-blue-600'}`}>
-                        {item.amount.toLocaleString()}円
-                      </span>
-                      {/* タップでも開ける削除ボタン（またはトリガー） */}
-                      <button
-                        onClick={() => setDeleteTargetId(item.id)}
-                        className="bg-red-500 text-white text-[10px] px-2 py-1 rounded hover:bg-red-600 transition-colors"
-                      >
-                        削除
-                      </button>
+                    <div className={`font-medium ${item.type === 'expense' ? 'text-gray-800' : 'text-blue-600'}`}>
+                      {item.amount.toLocaleString()}円
                     </div>
                   </motion.div>
                 </div>
