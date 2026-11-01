@@ -14,6 +14,10 @@ from core.discord import send_discord_notification  # 作成した関数をイ�
 from google import genai
 from collections import defaultdict
 from fastapi import HTTPException
+from dotenv import load_dotenv
+import os
+
+load_dotenv()  # .envファイルを読み込む
 
 models.Base.metadata.create_all(bind=engine)
 
