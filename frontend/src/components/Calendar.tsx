@@ -17,9 +17,8 @@ export default function Calendar() {
   const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth() + 1);
   const formattedCurrentMonth = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
-  const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
+  const [successMessage, setSuccessMessage] = useState<string | null>(null);  
   const API_BASE_URL = 'http://13.236.87.93:8000';
-
   // 削除確認ポップアップ用のステート
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 
@@ -41,7 +40,7 @@ export default function Calendar() {
     fetchExpenses();
   }, []);
 
-  // 削除実行処理
+ // 削除実行処理
   const handleDeleteConfirm = async () => {
     if (deleteTargetId === null) return;
 
@@ -49,16 +48,21 @@ export default function Calendar() {
       const response = await fetch(`${API_BASE_URL}/api/expenses/${deleteTargetId}`, {
         method: 'DELETE',
       });
-      // 200 OK または 204 No Content を成功とみなす
       if (response.ok || response.status === 204) {
         setExpenses(expenses.filter((item) => item.id !== deleteTargetId));
-        setMessage({ text: '削除しました', isError: false });
+        
+        // alertの代わりにメッセージを表示し、3秒後に自動で消す
+        setSuccessMessage('削除しました');
+        setTimeout(() => {
+          setSuccessMessage(null);
+        }, 3000);
+
       } else {
-        setMessage({ text: '削除に失敗しました', isError: true });
+        alert('削除に失敗しました');
       }
     } catch (err) {
       console.error(err);
-      setMessage({ text: '通信エラーが発生しました', isError: true });
+      alert('通信エラーが発生しました');
     } finally {
       setDeleteTargetId(null);
     }
@@ -226,6 +230,12 @@ export default function Calendar() {
               </button>
             </div>
           </div>
+        </div>
+      )}
+      {/* 成功・登録・削除などのメッセージ通知 */}
+      {successMessage && (
+        <div className="bg-green-500 text-white text-xs text-center py-2 px-4 transition-all duration-300">
+          {successMessage}
         </div>
       )}
     </div>
