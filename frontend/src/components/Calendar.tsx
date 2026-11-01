@@ -37,12 +37,12 @@ export default function Calendar() {
     fetchExpenses();
   }, []);
 
-    // 1. 現在表示している月のデータだけを抽出
+  // 1. 現在表示している月のデータだけを抽出
   const monthlyExpenses = expenses.filter((item) => {
-    // item.date が "2026-10-25" の形式であると仮定
     return item.date.startsWith(formattedCurrentMonth);
   });
-    // 2. 収入の合計を計算
+
+  // 2. 収入の合計を計算
   const totalIncome = monthlyExpenses
     .filter((item) => item.category === '給与')
     .reduce((sum, item) => sum + Number(item.amount), 0);
@@ -52,20 +52,19 @@ export default function Calendar() {
     .filter((item) => item.category !== '給与')
     .reduce((sum, item) => sum + Number(item.amount), 0);
 
-  // 4. 収支の総合計（収入 - 支出、またはお好みで）
+  // 4. 収支の総合計
   const balance = totalIncome - totalExpense;
 
-  // 日付ごとのグループ化
+  // 5. 【修正】現在表示している月のデータ（monthlyExpenses）を日付ごとにグループ化
   const groupedExpenses = monthlyExpenses.reduce((acc, item) => {
     if (!acc[item.date]) acc[item.date] = [];
     acc[item.date].push(item);
     return acc;
   }, {} as Record<string, ExpenseItem[]>);
 
-  // カレンダーグリッド用（10月表示用のダミー格子サンプル例）
-  // 実際の日付セルデータ（10月1日〜31日＋前後の日付）
+  // カレンダーグリッド用（ダミー格子サンプル例）
   const calendarDays = Array.from({ length: 35 }, (_, i) => {
-    const dayNum = i - 3; // 27〜31(前月)＋1〜30/31
+    const dayNum = i - 3; 
     return dayNum;
   });
 
@@ -91,13 +90,10 @@ export default function Calendar() {
 
   return (
     <div className="bg-white min-h-full flex flex-col">
-      {/* 1. 共通ヘッダー（カレンダー専用の中身を配置） */}
+      {/* 1. 共通ヘッダー */}
       <Header>
-        {/* 3列のグリッドにする：[左の余白/ボタン] [中央の月] [右のアイコン] */}
         <div className="grid grid-cols-[1fr_2fr_1fr] items-center w-full">
-          {/* 1列目：左側（バランスを取るための空要素、または左側ボタンなど） */}
           <div></div>
-          {/* 2列目：中央の月切り替え（常にヘッダー全体の真ん中に配置されます） */}
           <div className="flex items-center justify-center space-x-3">
             <button 
               onClick={handlePrevMonth}
@@ -115,18 +111,16 @@ export default function Calendar() {
               &gt;
             </button>
           </div>
-          {/* 3列目：右側のアイコン（右端に寄せる） */}
           <div className="flex justify-end">
             <button className="p-2 bg-white/20 hover:bg-white/30 rounded-full transition-colors">
-              {/* 虫眼鏡アイコンなどのSVGや絵文字 */}
               🔍
             </button>
           </div>
         </div>
       </Header>
+
       {/* 2. カレンダーグリッド */}
       <div className="sticky top-0 left-0 right-0 bg-white border-b border-gray-200">
-        {/* 曜日 */}
         <div className="grid grid-cols-7 text-center text-[11px] py-1 border-b border-gray-100 font-medium">
           <span className="text-red-400">Sun</span>
           <span className="text-gray-500">Mon</span>
@@ -137,12 +131,12 @@ export default function Calendar() {
           <span className="text-blue-400">Sat</span>
         </div>
 
-        {/* 日付格子 */}
         <div className="grid grid-cols-7 divide-x divide-y divide-gray-100 text-[10px]">
           {calendarDays.map((d, idx) => {
             const isCurrentMonth = d >= 1 && d <= 31;
-            const isToday = d === 24; // 24日強調表示
-            const dateStr = `2026-10-${d < 10 ? '0' + d : d}`;
+            const isToday = d === 24; 
+            const dayNumStr = d > 0 && d <= 31 ? String(d).padStart(2, '0') : '01';
+            const dateStr = `${formattedCurrentMonth}-${dayNumStr}`;
             const dayExpenses = groupedExpenses[dateStr] || [];
 
             const dayIncome = dayExpenses
@@ -168,7 +162,6 @@ export default function Calendar() {
                     {d > 0 ? d : d + 30}
                   </span>
                 </div>
-                {/* 収支金額 */}
                 <div className="text-[9px] text-right leading-tight">
                   {dayIncome > 0 && <div className="text-blue-500 font-medium">{dayIncome.toLocaleString()}円</div>}
                   {dayExpense > 0 && <div className="text-red-400 font-medium">{dayExpense.toLocaleString()}円</div>}
@@ -204,11 +197,9 @@ export default function Calendar() {
         ) : (
           Object.entries(groupedExpenses).map(([date, items]) => (
             <div key={date}>
-              {/* 日付見出し */}
               <div className="bg-amber-50/50 px-4 py-1 text-[11px] text-gray-500 font-medium border-y border-amber-100/60">
                 {date}
               </div>
-              {/* 明細行 */}
               {items.map((item) => (
                 <div key={item.id} className="flex justify-between items-center px-4 py-2.5 text-xs text-gray-700 hover:bg-gray-50">
                   <div>
