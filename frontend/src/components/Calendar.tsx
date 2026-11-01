@@ -51,6 +51,7 @@ export default function Calendar() {
       // 200 OK または 204 No Content を成功とみなす
       if (response.ok || response.status === 204) {
         setExpenses(expenses.filter((item) => item.id !== deleteTargetId));
+        alert('削除しました'); 
       } else {
         alert('削除に失敗しました');
       }
