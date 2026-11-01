@@ -17,6 +17,7 @@ export default function Calendar() {
   const [currentYear, setCurrentYear] = useState<number>(new Date().getFullYear());
   const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth() + 1);
   const formattedCurrentMonth = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
+  const [message, setMessage] = useState<{ text: string; isError: boolean } | null>(null);
   const API_BASE_URL = 'http://13.236.87.93:8000';
 
   // 削除確認ポップアップ用のステート
@@ -51,13 +52,13 @@ export default function Calendar() {
       // 200 OK または 204 No Content を成功とみなす
       if (response.ok || response.status === 204) {
         setExpenses(expenses.filter((item) => item.id !== deleteTargetId));
-        alert('削除しました'); 
+        setMessage({ text: '削除しました', isError: false });
       } else {
-        alert('削除に失敗しました');
+        setMessage({ text: '削除に失敗しました', isError: true });
       }
     } catch (err) {
       console.error(err);
-      alert('通信エラーが発生しました');
+      setMessage({ text: '通信エラーが発生しました', isError: true });
     } finally {
       setDeleteTargetId(null);
     }
