@@ -23,7 +23,7 @@ app = FastAPI(title="家計簿アプリ API")
 # ※ 取得したGeminiのAPIキーをここに直接入れるか、環境変数として設定してください
 # 環境変数からAPIキーを読み込む（もし設定されていなければ空文字やエラーにする）
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-ai_client = genai.Client(api_key=GEMINI_API_KEY)
+ai_client = genai.Client(api_key="GEMINI_API_KEY")
 
 # ⚠️ React（http://localhost:5173）からの通信を許可する設定
 app.add_middleware(
