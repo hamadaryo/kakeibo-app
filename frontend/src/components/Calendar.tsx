@@ -56,7 +56,7 @@ export default function Calendar() {
   const balance = totalIncome - totalExpense;
 
   // 日付ごとのグループ化
-  const groupedExpenses = expenses.reduce((acc, item) => {
+  const groupedExpenses = monthlyExpenses.reduce((acc, item) => {
     if (!acc[item.date]) acc[item.date] = [];
     acc[item.date].push(item);
     return acc;
