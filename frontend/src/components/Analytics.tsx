@@ -21,7 +21,7 @@ export default function Analytics() {
   const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth() + 1);
   const formattedCurrentMonth = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
   
-  const API_BASE_URL = 'http://13.236.87.93:8000';
+  const API_BASE_URL = 'http://54.249.208.48:8000';
 
   // データの取得
   const fetchExpenses = async () => {

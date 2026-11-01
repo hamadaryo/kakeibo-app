@@ -18,7 +18,7 @@ export default function Calendar() {
   const [currentMonth, setCurrentMonth] = useState<number>(new Date().getMonth() + 1);
   const formattedCurrentMonth = `${currentYear}-${String(currentMonth).padStart(2, '0')}`;
   const [successMessage, setSuccessMessage] = useState<string | null>(null);  
-  const API_BASE_URL = 'http://13.236.87.93:8000';
+  const API_BASE_URL = 'http://54.249.208.48:8000';
   // 削除確認ポップアップ用のステート
   const [deleteTargetId, setDeleteTargetId] = useState<number | null>(null);
 

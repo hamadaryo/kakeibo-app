@@ -21,7 +21,7 @@ app = FastAPI(title="家計簿アプリ API")
 # ※ 取得したGeminiのAPIキーをここに直接入れるか、環境変数として設定してください
 # 環境変数からAPIキーを読み込む（もし設定されていなければ空文字やエラーにする）
 GEMINI_API_KEY = os.getenv("GEMINI_API_KEY")
-ai_client = genai.Client(api_key=GEMINI_API_KEY)
+ai_client = genai.Client(api_key="GEMINI_API_KEY")
 
 # ⚠️ React（http://localhost:5173）からの通信を許可する設定
 app.add_middleware(
@@ -169,7 +169,7 @@ def analyze_expenses(req: AiAnalyzeRequest):
 
         # Gemini 2.5 Flash （高速で軽量なモデル）を使用して回答を生成
         response = ai_client.models.generate_content(
-            model="gemini-2.5-flash",
+            model="gemini-3.8-flash",
             contents=prompt,
         )
 
